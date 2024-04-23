@@ -1749,7 +1749,7 @@
 										}
 									]
 								},
-								"method": "PATCH",
+								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "raw",
@@ -1761,14 +1761,15 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/users/set-avatar/",
+									"raw": "{{baseUrl}}/api/users/me/avatar/",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"users",
-										"set-avatar",
+										"me",
+										"avatar",
 										""
 									]
 								}
@@ -1776,7 +1777,7 @@
 							"response": []
 						},
 						{
-							"name": "check_avatar_is_set // User Copy",
+							"name": "check_avatar_is_set // User",
 							"event": [
 								{
 									"listen": "test",
@@ -1810,7 +1811,7 @@
 											"pm.test(\"Поле `avatar` должно содержать ссылку на аватар\", function () {",
 											"    pm.expect(",
 											"        typeof responseData.avatar, ",
-											"        \"Убедитесь, что если аватар добавлен корректно, то  в ответе на запрос к данным пользователя в поле `avatar` содержится ссылка на аватар\"",
+											"        \"Убедитесь, что после корректного запроса на добавление аватара для пользователя, поле `avatar` в ответе на запрос к данным пользователя содержит ссылку на аватар\"",
 											"    ).to.equal(\"string\");",
 											"});"
 										],
@@ -2064,7 +2065,7 @@
 											"pm.test(\"Статус-код ответа должен быть 200\", function () {",
 											"    pm.expect(",
 											"        pm.response.status,",
-											"        \"Убедитесь, что корректный запроc на получение токена возвращает ответ со статус-кодом 200\"",
+											"        \"Убедитесь, что запроc на получение токена, содержащий корректные данные, возвращает ответ со статус-кодом 200\"",
 											"    ).to.be.eql(\"OK\");",
 											"});",
 											"pm.test('Структура ответа соответствует ожидаемой', function () {",
@@ -2300,14 +2301,15 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/api/users/delete-avatar/",
+									"raw": "{{baseUrl}}/api/users/me/avatar/",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"users",
-										"delete-avatar",
+										"me",
+										"avatar",
 										""
 									]
 								}
@@ -2337,7 +2339,7 @@
 								"auth": {
 									"type": "noauth"
 								},
-								"method": "PATCH",
+								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "raw",
@@ -2349,14 +2351,15 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/users/set-avatar/",
+									"raw": "{{baseUrl}}/api/users/me/avatar/",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"users",
-										"set-avatar",
+										"me",
+										"avatar",
 										""
 									]
 								}
@@ -2397,7 +2400,7 @@
 										}
 									]
 								},
-								"method": "PATCH",
+								"method": "PUT",
 								"header": [],
 								"body": {
 									"mode": "raw",
@@ -2409,14 +2412,15 @@
 									}
 								},
 								"url": {
-									"raw": "{{baseUrl}}/api/users/set-avatar/",
+									"raw": "{{baseUrl}}/api/users/me/avatar/",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"users",
-										"set-avatar",
+										"me",
+										"avatar",
 										""
 									]
 								}
@@ -2466,14 +2470,15 @@
 								"method": "DELETE",
 								"header": [],
 								"url": {
-									"raw": "{{baseUrl}}/api/users/delete-avatar/",
+									"raw": "{{baseUrl}}/api/users/me/avatar/",
 									"host": [
 										"{{baseUrl}}"
 									],
 									"path": [
 										"api",
 										"users",
-										"delete-avatar",
+										"me",
+										"avatar",
 										""
 									]
 								}
@@ -2515,7 +2520,7 @@
 											"pm.test(\"Поле `avatar` должно быть пустым\", function () {",
 											"    pm.expect(",
 											"        (responseData[\"avatar\"] === null || responseData[\"avatar\"] === \"\"), ",
-											"        \"Убедитесь, что после корректного запроса на удаление аватара в ответе на запрос к данным пользователя в поле `avatar` вернётся `null` или пустая строка\"",
+											"        \"Убедитесь, что после корректного запроса на удаление аватара для пользователя, поле `avatar` в ответе на запрос к данным пользователя содержит `null` или пустую строку\"",
 											"    ).to.be.true;",
 											"});"
 										],
@@ -5481,7 +5486,7 @@
 											"pm.test(\"Статус-код ответа должен быть 200\", function () {",
 											"    pm.expect(",
 											"        pm.response.status,",
-											"        \"Запрос незарегистрированного пользователя должен вернуть ответ со статус-кодом 200\"",
+											"        \"Запрос не зарегистрированного пользователя должен вернуть ответ со статус-кодом 200\"",
 											"    ).to.be.eql(\"OK\");",
 											"});",
 											"pm.test('Структура ответа должна соответствовать ожидаемой', function () {",
