@@ -48,11 +48,11 @@ class Recipe(models.Model):
         max_length=LENG_MAX,
         db_index=True,
     )
-    #image = models.ImageField(
-    #    upload_to='data/images',
-    #    null=True,
-    #    default=None,
-    #)
+#    image = models.ImageField(
+#        upload_to='data/images',
+#        null=True,
+#        default=None,
+#    )
     description = models.TextField(
         'Описание',
         db_index=True,
