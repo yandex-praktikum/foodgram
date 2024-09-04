@@ -1,12 +1,20 @@
 from django.contrib import admin
 from rest_framework.routers import DefaultRouter
 from users.views import UsersViewSet
+from data.views import RecipeViewSet, IngredientsViewSet
 from django.urls import path, include
 
 
 router_vers1 = DefaultRouter()
-router_vers1.register('users', UsersViewSet, basename='users')
-
+router_vers1.register(
+    'users', UsersViewSet, basename='users'
+)
+router_vers1.register(
+    'recipes', RecipeViewSet, basename='recipes'
+)
+router_vers1.register(
+    'ingredients', IngredientsViewSet, basename='ingredients'
+)
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include(router_vers1.urls)),

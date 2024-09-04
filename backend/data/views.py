@@ -1,3 +1,32 @@
 from django.shortcuts import render
+from rest_framework import viewsets
+from users.permissions import IsOwnerOrReadOnly
+from django.db.models import Avg
+from .models import Recipe, Ingredients
+from .serializers import RecipeSerializer, IngredientsSerializer
 
-# Create your views here.
+class RecipeViewSet(viewsets.ModelViewSet):
+    """Вьюсет для произведений."""
+
+    # queryset = Title.objects.all()
+    permission_classes = (IsOwnerOrReadOnly,)
+    serializer_class = RecipeSerializer
+    http_method_names = ["get", "post", "patch", "delete"]
+    #filter_backends = (DjangoFilterBackend, filters.OrderingFilter, )
+    #filterset_class = FilterForTitle
+    ordering_fields = ('name',)
+
+    def get_queryset(self):
+        queryset = Recipe.objects.annotate(rating=Avg('name'))
+        return queryset
+    
+
+class IngredientsViewSet(viewsets.ModelViewSet):
+    permission_classes = (IsOwnerOrReadOnly,)
+    serializer_class = IngredientsSerializer
+    http_method_names = ["get"]
+    ordering_fields = ('name')
+
+    def get_queryset(self):
+        queryset = Ingredients.objects.annotate(rating=Avg('name'))
+        return queryset
