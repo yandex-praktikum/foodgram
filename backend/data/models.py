@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 
-from django.db import models
 
+from django.db import models
 
 
 User = get_user_model()
@@ -48,11 +48,12 @@ class Recipe(models.Model):
         max_length=LENG_MAX,
         db_index=True,
     )
-#    image = models.ImageField(
-#        upload_to='data/images',
+    image = models.ImageField(
+        verbose_name='Изображение блюда',
+        upload_to='data/images',
 #        null=True,
 #        default=None,
-#    )
+    )
     description = models.TextField(
         'Описание',
         db_index=True,
@@ -69,8 +70,18 @@ class Recipe(models.Model):
         related_name='tags',
         to=Tag,
     )
+#    pub_date = models.DateTimeField(
+#        verbose_name='Дата публикации',
+#        auto_now_add=True,
+#    )
+#    cook_time = models.PositiveSmallIntegerField(
+#        verbose_name='Время приготовления в минутах',
+#        default=0,
+#    )
 
     def __str__(self):
         return self.name
+    
+    
 
 
