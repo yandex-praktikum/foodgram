@@ -17,7 +17,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     ordering_fields = ('name',)
 
     def get_queryset(self):
-        queryset = Recipe.objects.annotate(rating=Avg('name'))
+        queryset = self.queryset
         return queryset
     
 
@@ -28,5 +28,5 @@ class IngredientsViewSet(viewsets.ModelViewSet):
     ordering_fields = ('name')
 
     def get_queryset(self):
-        queryset = Ingredients.objects.annotate(rating=Avg('name'))
+        queryset = self.queryset
         return queryset
