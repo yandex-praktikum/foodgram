@@ -8,13 +8,13 @@ from .serializers import RecipeSerializer, IngredientsSerializer
 class RecipeViewSet(viewsets.ModelViewSet):
     """Вьюсет для произведений."""
 
-    # queryset = Title.objects.all()
+    qqueryset = Recipe.objects.select_related("author")
     permission_classes = (IsOwnerOrReadOnly,)
     serializer_class = RecipeSerializer
     http_method_names = ["get", "post", "patch", "delete"]
     #filter_backends = (DjangoFilterBackend, filters.OrderingFilter, )
     #filterset_class = FilterForTitle
-    ordering_fields = ('name',)
+    #ordering_fields = ('name',)
 
     def get_queryset(self):
         queryset = self.queryset
