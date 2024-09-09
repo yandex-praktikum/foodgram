@@ -361,10 +361,6 @@ paths:
           description: 'Рецепт успешно добавлен в избранное'
         '400':
           description: 'Ошибка добавления в избранное (Например, когда рецепт уже есть в избранном)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '404':
@@ -389,10 +385,6 @@ paths:
           description: 'Рецепт успешно удален из избранного'
         '400':
           description: 'Ошибка удаления из избранного (Например, когда рецепта там не было)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '404':
@@ -421,10 +413,6 @@ paths:
           description: 'Рецепт успешно добавлен в список покупок'
         '400':
           description: 'Ошибка добавления в список покупок (Например, когда рецепт уже есть в списке покупок)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '404':
@@ -448,10 +436,6 @@ paths:
           description: 'Рецепт успешно удален из списка покупок'
         '400':
           description: 'Ошибка удаления из списка покупок (Например, когда рецепта там не было)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '404':
@@ -622,10 +606,6 @@ paths:
           description: 'Подписка успешно создана'
         '400':
           description: 'Ошибка подписки (Например, если уже подписан или при подписке на себя самого)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '404':
@@ -649,10 +629,6 @@ paths:
           description: 'Успешная отписка'
         '400':
           description: 'Ошибка отписки (Например, если не был подписан)'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SelfMadeError'
         '401':
           $ref: '#/components/responses/AuthenticationError'
         '404':
@@ -1281,14 +1257,6 @@ components:
                 type: array
                 items:
                   type: string
-
-    SelfMadeError:
-      description: Ошибка
-      type: object
-      properties:
-        errors:
-          description: 'Описание ошибки'
-          type: string
 
     AuthenticationError:
       description: Пользователь не авторизован
