@@ -7,10 +7,12 @@ from rest_framework.permissions import AllowAny
 from recipes.models import (
     Ingredient,
     Tag,
+    Recipe,
 )
 from recipes.serializers import (
     IngredientReadSerializer,
     TagReadSerializer,
+    RecipeReadSerializer
 )
 
 
@@ -35,24 +37,18 @@ class TagViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet
 ):
-    """Сериализатор чтения тегов .
-
-    Cписок тегов:
-        - Запрос:
-            GET /api/tags/
-        - Ответы:
-            200
-
-    Получение тега
-            GET /api/tags/{id}/
-            PATH PARAMETERS:
-                - id (required, string, Уникальный идентификатор Тега).
-        - Ответы:
-            - 200
-            - 404 Объект не найден
-    """
-
     queryset = Tag.objects.all()
     serializer_class = TagReadSerializer
     pagination_class = None
     permission_classes = (AllowAny, )
+
+
+class RecipeViewSet(viewsets.ModelViewSet):
+    queryset = Recipe.objects.all()
+    serializer_class = RecipeReadSerializer
+    #pagination_class = CustomPaginator
+    #permission_classes = (IsAuthorOrReadOnly, )
+    #filter_backends = (DjangoFilterBackend, )
+    #filterset_class = RecipeFilter
+    #http_method_names = ['get', 'post', 'patch', 'create', 'delete']
+
