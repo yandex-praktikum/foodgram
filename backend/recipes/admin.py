@@ -6,6 +6,7 @@ from recipes.models import (
     Tag,
     Recipe,
     User,
+    UserFavoriteRecipes,
 )
 
 
@@ -44,6 +45,7 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class RecipeAdmin(admin.ModelAdmin):
+    empty_value_display = '-пусто-'
     list_display = (
         'pk',
         'name',
@@ -52,6 +54,7 @@ class RecipeAdmin(admin.ModelAdmin):
     )
     list_display_links = (
         'name',
+        'author',
     )
     list_editable = (
         #'name',
@@ -69,14 +72,37 @@ class RecipeAdmin(admin.ModelAdmin):
     readonly_fields = (
         'in_favorites',
     )
-    empty_value_display = '-пусто-'
+    search_fields = (
+        'name',
+        'author',
+        'tags'
+    )
 
     @admin.display(description='В избранном')
     def in_favorites(self, obj):
         return obj.favorite_recipe.count()
 
 
+class UserFavoriteRecipesAdmin(admin.ModelAdmin):
+    empty_value_display = '-пусто-'
+    list_display = (
+        'pk',
+        'user',
+        'get_recipe',
+    )
+    list_filter = (
+        'user',
+    )
+    search_fields = (
+        'user',
+    )
+
+    def get_recipe(self, object):
+        return object.recipe
+
+
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(UserFavoriteRecipes, UserFavoriteRecipesAdmin)
 admin.site.register(User, UserAdmin)

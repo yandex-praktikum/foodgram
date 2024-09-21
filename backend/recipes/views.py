@@ -24,7 +24,8 @@ from recipes.models import (
     Tag,
     Recipe,
 )
-from recipes.permissions import IsAuthorOrReadOnly, IsAdmin
+from recipes.pagination import RecipePagination
+from recipes.permissions import IsAdmin, IsAuthorOrReadOnly
 from recipes.serializers import (
     IngredientReadSerializer,
     TagReadSerializer,
@@ -65,7 +66,7 @@ class TagViewSet(
 class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     serializer_class = RecipeReadSerializer
-    pagination_class = PageNumberPagination
+    pagination_class = RecipePagination
     permission_classes = (IsAuthorOrReadOnly, )
     filter_backends = (DjangoFilterBackend, )
     filterset_class = RecipeFilter
@@ -75,12 +76,12 @@ class RecipeViewSet(viewsets.ModelViewSet):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserReadSerializer
+    pagination_class = PageNumberPagination
     permission_classes = (IsAdmin,)
-    http_method_names = ['get', 'post', 'patch', 'delete']
     filter_backends = (filters.SearchFilter,)
+    http_method_names = ['get', 'post', 'patch', 'delete']
     lookup_field = 'username'
     search_fields = ['username']
-    pagination_class = PageNumberPagination
 
     @action(
         detail=False,

@@ -1,5 +1,6 @@
-"""backend/recipes/models.py
+"""Модели.
 
+backend/recipes/models.py
 """
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
@@ -251,3 +252,33 @@ class RecipeIngredient(models.Model):
             f'{self.quantity} '
             f'{self.ingredient.measurement_unit}'
         )
+
+
+class UserFavoriteRecipes(models.Model):
+    """Избранные рецепты пользователя.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user_favorite',
+        verbose_name='Избранное пользователя'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='favorite_recipe',
+        verbose_name='Избранный рецепт'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное пользователя'
+        verbose_name_plural = 'Избранное пользователя'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_favorite'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user.username} - {self.recipe.name}'

@@ -1,5 +1,6 @@
-"""backend/recipes/urls.py
+"""URL-адреса.
 
+backend/recipes/urls.py
 """
 from django.conf import settings
 from django.conf.urls.static import static
@@ -18,7 +19,7 @@ router = routers.DefaultRouter()
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
-router.register('users', UserViewSet, basename='users')
+router.register(r'users', UserViewSet, basename='users')
 
 
 urlpatterns = [
