@@ -25,7 +25,7 @@ class RecipesAPITestCase(TestCase):
         response = self.client.get('/api/tags/')
         self.assertEqual(response.status_code, HTTPStatus.OK)
 
-    def _test_recipe_list_exists(self):
+    def test_recipe_list_exists(self):
         """Проверка доступности списка рецептов."""
         response = self.client.get('/api/recipes/')
         self.assertEqual(response.status_code, HTTPStatus.OK)

@@ -14,6 +14,7 @@ from recipes.models import (
 
 User = get_user_model()
 
+
 class IngredientReadSerializer(serializers.ModelSerializer):
     """Сериализатор чтения списка ингредиентов.
     """
@@ -79,8 +80,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     )
     ingredients = RecipeIngredientReadSerializer(
         source='recipes',
-        read_only=True, 
-        many=True, 
+        read_only=True,
+        many=True,
     )
     tags = TagReadSerializer(
         read_only=True,
@@ -96,9 +97,17 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recipe
         fields = (
-            'name', 'image', 'image_url', 'text', 'cooking_time',
-            'pub_date', 'author', 'ingredients', 'tags',
-            'is_favorited', 'is_in_shopping_cart',
+            'name',
+            'image',
+            'image_url',
+            'text',
+            'cooking_time',
+            'pub_date',
+            'author',
+            'ingredients',
+            'tags',
+            'is_favorited',
+            'is_in_shopping_cart',
         )
         read_only_fields = ('author',)
 
@@ -125,4 +134,3 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         #        recipe=obj
         #    ).exists()
         #)
-
