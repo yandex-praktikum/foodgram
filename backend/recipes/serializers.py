@@ -12,6 +12,7 @@ from recipes.models import (
     Recipe,
     RecipeIngredient,
     UserFavoriteRecipes,
+    UserShoppingCartRecipes,
 )
 
 User = get_user_model()
@@ -137,14 +138,13 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         )
 
     def get_is_in_shopping_cart(self, obj):
-        pass
-        #return (
-        #    self.context.get('request').user.is_authenticated
-        #    and ShoppingCart.objects.filter(
-        #        user=self.context['request'].user,
-        #        recipe=obj
-        #    ).exists()
-        #)
+        return (
+            self.context.get('request').user.is_authenticated
+            and UserShoppingCartRecipes.objects.filter(
+                user=self.context['request'].user,
+                recipe=obj
+            ).exists()
+        )
 
 
 class UserFavoriteRecipesReadSerializer(serializers.ModelSerializer):
@@ -179,5 +179,41 @@ class UserFavoriteRecipesReadSerializer(serializers.ModelSerializer):
         ).exists():
             raise serializers.ValidationError(
                 f'Рецепт {recipe} уже есть в Избранном пользователя {user}'
+            )
+        return data
+
+
+class UserShoppingCartRecipesReadSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(
+        source='recipe.id'
+    )
+    name = serializers.CharField(
+        source='recipe.name'
+    )
+    image = Base64ImageField(
+        source='recipe.image'
+    )
+    cooking_time = serializers.IntegerField(
+        source='recipe.cooking_time'
+    )
+
+    class Meta:
+        model = UserShoppingCartRecipes
+        fields = (
+            'id',
+            'name',
+            'image',
+            'cooking_time',
+        )
+
+    def validate(self, data):
+        user = data['user']
+        recipe = data['recipe']
+        if UserShoppingCartRecipes.objects.filter(
+                user=user,
+                recipe=recipe
+        ).exists():
+            raise serializers.ValidationError(
+                f'Рецепт {recipe} уже есть в корзине пользователя {user}'
             )
         return data

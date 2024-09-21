@@ -9,6 +9,7 @@ from recipes.models import (
     Tag,
     User,
     UserFavoriteRecipes,
+    UserShoppingCartRecipes,
 )
 
 
@@ -130,8 +131,27 @@ class UserFavoriteRecipesAdmin(admin.ModelAdmin):
         return object.recipe
 
 
+class UserShoppingCartRecipesAdmin(admin.ModelAdmin):
+    empty_value_display = '-пусто-'
+    list_display = (
+        'pk',
+        'user',
+        'get_recipe',
+    )
+    list_filter = (
+        'user',
+    )
+    search_fields = (
+        'user',
+    )
+
+    def get_recipe(self, object):
+        return object.recipe
+
+
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(UserFavoriteRecipes, UserFavoriteRecipesAdmin)
+admin.site.register(UserShoppingCartRecipes, UserShoppingCartRecipesAdmin)
 admin.site.register(User, UserAdmin)

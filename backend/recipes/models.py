@@ -304,13 +304,43 @@ class UserFavoriteRecipes(models.Model):
 
     class Meta:
         verbose_name = 'Избранное пользователя'
-        verbose_name_plural = 'Избранное пользователя'
+        verbose_name_plural = 'Избранное пользователей'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
                 name='unique_favorite'
             )
         ]
+
+    def __str__(self):
+        return f'{self.user.username} - {self.recipe.name}'
+
+
+class UserShoppingCartRecipes(models.Model):
+    """Рецепты из пользовательской корзины.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='user_shopping_cart',
+        verbose_name='Владелец корзины',
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipe_in_shopping_cart',
+        verbose_name='Рецепт в корзине'
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'],
+                name='unique_user_shopping_cart_with_recipe'
+            )
+        ]
+        verbose_name = 'Корзина пользователя с рецептом'
+        verbose_name_plural = 'Корзины пользователей с рецептами'
 
     def __str__(self):
         return f'{self.user.username} - {self.recipe.name}'
