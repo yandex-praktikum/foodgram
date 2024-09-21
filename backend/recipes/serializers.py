@@ -65,7 +65,17 @@ class RecipeIngredientReadSerializer(serializers.ModelSerializer):
 
 
 class UserReadSerializer(serializers.ModelSerializer):
-    pass
+    """Сериализатор чтения пользователей.
+    """
+    class Meta:
+        model = User
+        fields = (
+            'username',
+            'email',
+            'role',
+            'first_name',
+            'last_name'
+        )
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -99,7 +109,6 @@ class RecipeReadSerializer(serializers.ModelSerializer):
         fields = (
             'name',
             'image',
-            'image_url',
             'text',
             'cooking_time',
             'pub_date',

@@ -1,5 +1,6 @@
 Django==3.2.3
 djangorestframework==3.12.4
+django-filter==22.1
 djoser==2.1.0
 drf_base64==2.0
 webcolors==1.11.1

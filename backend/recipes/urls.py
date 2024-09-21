@@ -9,7 +9,8 @@ from rest_framework import routers
 from recipes.views import (
     IngredientViewSet,
     TagViewSet,
-    RecipeViewSet
+    RecipeViewSet,
+    UserViewSet,
 )
 
 
@@ -17,6 +18,7 @@ router = routers.DefaultRouter()
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
+router.register('users', UserViewSet, basename='users')
 
 
 urlpatterns = [

@@ -1,9 +1,11 @@
 """backend/recipes/models.py
 
 """
-from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import MinValueValidator
+from django.contrib.auth.validators import UnicodeUsernameValidator
+from django.core.validators import (
+    EmailValidator, MinValueValidator, MaxValueValidator
+)
 from django.db import models
 
 from recipes.constants import (
@@ -11,9 +13,109 @@ from recipes.constants import (
     MEASUREMENT_UNIT_MAX_LENGTH,
     MIN_VALUE_VALIDATOR,
     SLUG_MAX_LENGTH,
+    USERNAME_MAX_LENGTH,
+    EMAIL_MAX_LENGTH,
+    FIRST_NAME_MAX_LENGTH,
+    LAST_NAME_MAX_LENGTH,
+    BIO_MAX_LENGTH,
+    ROLE_LENGTH_LIMIT,
+    ROLE_MAX_LENGTH,
+    PASSWORD_MAX_LENGTH,
 )
+from recipes.validators import username_validator
 
-User = get_user_model()
+
+class UserRole(models.TextChoices):
+    USER = 'user', 'пользователь'
+    ADMIN = 'admin', 'администратор'
+
+
+class User(AbstractUser):
+    username = models.CharField(
+        verbose_name='Имя пользователя',
+        max_length=USERNAME_MAX_LENGTH,
+        unique=True,
+        help_text=(
+            f'Имя пользователя, не более {USERNAME_MAX_LENGTH} символов.',
+            'Допустимые символы: буквы, цифры и @/./+/-/_'
+        ),
+        validators=[
+            UnicodeUsernameValidator(
+                message=(
+                    'Имя пользователя содержит недопустимые символы. '
+                    'В имени пользователя допускается использовать буквы, '
+                    'цифры и символы _.@+-'
+                )
+            ),
+            username_validator
+        ]
+    )
+    email = models.EmailField(
+        verbose_name='Адрес электронной почты',
+        unique=True,
+        help_text=(
+            f'Адрес электронной почты, не более {EMAIL_MAX_LENGTH} символов'
+        ),
+    )
+    first_name = models.CharField(
+        verbose_name='Имя Отчество',
+        max_length=FIRST_NAME_MAX_LENGTH,
+        blank=True,
+        help_text=(
+            f'Имя Отчество, не более {FIRST_NAME_MAX_LENGTH} символов'
+        ),
+    )
+    last_name = models.CharField(
+        verbose_name='Фамилия',
+        max_length=LAST_NAME_MAX_LENGTH,
+        blank=True,
+        help_text=(
+            f'Фамилия, не более {LAST_NAME_MAX_LENGTH} символов'
+        ),
+    )
+    bio = models.CharField(
+        verbose_name='Биография',
+        max_length=BIO_MAX_LENGTH,
+        blank=True,
+        help_text=(
+            f'Биография, не более {BIO_MAX_LENGTH} символов'
+        ),
+    )
+    password = models.CharField(
+        verbose_name='Пароль',
+        max_length=PASSWORD_MAX_LENGTH,
+        help_text=(
+            f'Пароль, не более {PASSWORD_MAX_LENGTH} символов'
+        ),
+        unique=True,
+    )
+    role = models.CharField(
+        verbose_name='Роль',
+        max_length=ROLE_MAX_LENGTH,
+        help_text=(
+            f'Роль, не более {ROLE_MAX_LENGTH} символов'
+        ),
+        choices=UserRole.choices,
+        default=UserRole.USER
+    )
+
+    REQUIRED_FIELDS = ['email', ]
+
+    class Meta(AbstractUser.Meta):
+        ordering = ['username']
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
+    def __str__(self):
+        return f'{self.username} ({self.role[:ROLE_LENGTH_LIMIT]})'
+
+    @property
+    def is_user(self):
+        return self.role == UserRole.USER
+
+    @property
+    def is_admin(self):
+        return self.role == UserRole.ADMIN or self.is_superuser
 
 
 class Ingredient(models.Model):
