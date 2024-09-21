@@ -3,9 +3,10 @@ from django.contrib.auth.admin import UserAdmin
 
 from recipes.models import (
     Ingredient,
-    Tag,
     Recipe,
     RecipeIngredient,
+    RecipeTag,
+    Tag,
     User,
     UserFavoriteRecipes,
 )
@@ -50,6 +51,11 @@ class RecipeIngredientAdmin(admin.StackedInline):
     autocomplete_fields = ('ingredient',)
 
 
+class RecipeTagAdmin(admin.StackedInline):
+    model = RecipeTag
+    autocomplete_fields = ('tag',)
+
+
 class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
@@ -82,7 +88,10 @@ class RecipeAdmin(admin.ModelAdmin):
         'author__username',
         'tags__name'
     )
-    inlines = (RecipeIngredientAdmin,)
+    inlines = (
+        RecipeIngredientAdmin,
+        RecipeTagAdmin
+    )
 
     def get_favorite_count(self, obj):
         return obj.favorite_recipe.count()

@@ -200,7 +200,8 @@ class Recipe(models.Model):
     tags = models.ManyToManyField(
         Tag,
         verbose_name='Теги',
-        related_name='recipes',
+        through='RecipeTag',
+        through_fields=('recipe', 'tag'),
     )
 
     class Meta:
@@ -216,21 +217,21 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipes',
+        related_name='recipes_with_ingredient',
         verbose_name='Рецепт'
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='ingredients',
+        related_name='recipe_ingredients',
         verbose_name='Ингредиент'
     )
-    quantity = models.IntegerField(
+    quantity = models.PositiveSmallIntegerField(
         'Количество',
         validators=[
             MinValueValidator(
                 MIN_VALUE_VALIDATOR,
-                f'Минимальное значение: {MIN_VALUE_VALIDATOR}'
+                f'Минимальное количество ингредиентов: {MIN_VALUE_VALIDATOR}'
             )
         ],
     )
@@ -241,7 +242,7 @@ class RecipeIngredient(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['recipe', 'ingredient'],
-                name='unique_combination'
+                name='unique_combination_recipe_ingredient'
             )
         ]
 
@@ -251,6 +252,37 @@ class RecipeIngredient(models.Model):
             f'{self.ingredient.name} - '
             f'{self.quantity} '
             f'{self.ingredient.measurement_unit}'
+        )
+
+
+class RecipeTag(models.Model):
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='recipes_with_tag',
+        verbose_name='Рецепт',
+    )
+    tag = models.ForeignKey(
+        Tag,
+        on_delete=models.CASCADE,
+        related_name='recipe_tags',
+        verbose_name='Тег'
+    )
+
+    class Meta:
+        verbose_name = 'Тег рецепта'
+        verbose_name_plural = 'Теги рецепта'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'tag'],
+                name='unique_combination_recipe_tag'
+            )
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.recipe.name}: '
+            f'{self.tag.name} - '
         )
 
 
