@@ -5,6 +5,7 @@ from recipes.models import (
     Ingredient,
     Tag,
     Recipe,
+    RecipeIngredient,
     User,
     UserFavoriteRecipes,
 )
@@ -44,25 +45,27 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
+class RecipeIngredientAdmin(admin.StackedInline):
+    model = RecipeIngredient
+    autocomplete_fields = ('ingredient',)
+
+
 class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
         'pk',
         'name',
         'author',
-        'in_favorites'
+        'image',
+        'text',
+        'cooking_time',
+        'get_favorite_count',
+        'get_recipe_ingredients',
+        'get_recipe_tags',
     )
     list_display_links = (
         'name',
         'author',
-    )
-    list_editable = (
-        #'name',
-        #'cooking_time',
-        #'text',
-        #'tags',
-        #'image',
-        #'author'
     )
     list_filter = (
         'name',
@@ -70,17 +73,34 @@ class RecipeAdmin(admin.ModelAdmin):
         'tags'
     )
     readonly_fields = (
-        'in_favorites',
+        'get_favorite_count',
+        'get_recipe_ingredients',
+        'get_recipe_tags',
     )
     search_fields = (
         'name',
-        'author',
-        'tags'
+        'author__username',
+        'tags__name'
     )
+    inlines = (RecipeIngredientAdmin,)
 
-    @admin.display(description='В избранном')
-    def in_favorites(self, obj):
+    def get_favorite_count(self, obj):
         return obj.favorite_recipe.count()
+
+    def get_recipe_ingredients(self, object):
+        recipe_ingredients = []
+        for obj in object.recipe.all():
+            recipe_ingredients.append(
+                f'{obj.ingredient.name} - {obj.quantity}'
+                f'{obj.ingredient.measurement_unit}.'
+            )
+        return recipe_ingredients
+
+    def get_recipe_tags(self, object):
+        recipe_tags = []
+        for obj in object.tags.all():
+            recipe_tags.append(obj.name)
+        return recipe_tags
 
 
 class UserFavoriteRecipesAdmin(admin.ModelAdmin):
