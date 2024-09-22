@@ -6,6 +6,7 @@ drf_base64==2.0
 webcolors==1.11.1
 psycopg2-binary==2.9.3
 Pillow==9.0.0
+progress==1.6
 pytest==6.2.4
 pytest-django==4.4.0
 pytest-pythonpath==0.7.3

@@ -333,14 +333,47 @@ class UserShoppingCartRecipes(models.Model):
     )
 
     class Meta:
+        verbose_name = 'Корзина пользователя с рецептом'
+        verbose_name_plural = 'Корзины пользователей с рецептами'
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'],
                 name='unique_user_shopping_cart_with_recipe'
             )
         ]
-        verbose_name = 'Корзина пользователя с рецептом'
-        verbose_name_plural = 'Корзины пользователей с рецептами'
 
     def __str__(self):
         return f'{self.user.username} - {self.recipe.name}'
+
+
+class UserSubscription(models.Model):
+    """Подписки пользователя.
+    """
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscriber',
+        verbose_name='Подписчики'
+    )
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='subscription',
+        verbose_name='Авторы'
+    )
+
+    def __str__(self):
+        return f'{self.user.username} - {self.author.username}'
+
+    class Meta:
+        verbose_name = 'Подписка на авторов'
+        verbose_name_plural = 'Подписки на авторов'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name='unique_user_subscription_on_author'
+            )
+        ]
+
+    def __str__(self):
+        return f'{self.user.username} - {self.author.username}'

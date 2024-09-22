@@ -13,6 +13,7 @@ from recipes.models import (
     RecipeIngredient,
     UserFavoriteRecipes,
     UserShoppingCartRecipes,
+    UserSubscription,
 )
 
 User = get_user_model()
@@ -148,6 +149,8 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
 
 class UserFavoriteRecipesReadSerializer(serializers.ModelSerializer):
+    """Сериализатор чтения избранных рецептов пользователя.
+    """
     id = serializers.IntegerField(
         source='recipe.id'
     )
@@ -184,6 +187,8 @@ class UserFavoriteRecipesReadSerializer(serializers.ModelSerializer):
 
 
 class UserShoppingCartRecipesReadSerializer(serializers.ModelSerializer):
+    """Сериализатор чтения корзины рецептов пользователя.
+    """
     id = serializers.IntegerField(
         source='recipe.id'
     )
@@ -217,3 +222,45 @@ class UserShoppingCartRecipesReadSerializer(serializers.ModelSerializer):
                 f'Рецепт {recipe} уже есть в корзине пользователя {user}'
             )
         return data
+
+
+class UserSubscriptionReadSerializer(serializers.ModelSerializer):
+    """Сериализатор чтения подписок пользователя.
+    """
+    is_subscribed = serializers.SerializerMethodField()
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = User
+        fields = (
+            'email',
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'is_subscribed',
+            'recipes',
+            'recipes_count'
+        )
+
+    def get_is_subscribed(self, obj):
+        return (
+            self.context.get('request').user.is_authenticated
+            and UserSubscription.objects.filter(
+                user=self.context['request'].user,
+                author=obj
+            ).exists()
+        )
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        limit = request.GET.get('recipes_limit')
+        recipes = obj.recipes.all()
+        if limit:
+            recipes = recipes[:int(limit)]
+        serializer = RecipeReadSerializer(recipes, many=True, read_only=True)
+        return serializer.data
+    
+    def get_recipes_count(self, obj):
+        return obj.recipes.count()

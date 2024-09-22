@@ -10,6 +10,7 @@ from recipes.models import (
     User,
     UserFavoriteRecipes,
     UserShoppingCartRecipes,
+    UserSubscription,
 )
 
 
@@ -113,6 +114,24 @@ class RecipeAdmin(admin.ModelAdmin):
         return recipe_tags
 
 
+class UserAdmin(UserAdmin):
+    list_display = (
+        'username',
+        'email',
+        'is_staff'
+    )
+    list_display_links = (
+        'username',
+        'email',
+    )
+    search_fields = (
+        'username',
+        'email'
+    )
+    search_help_text = 'Поиск по `username` и `email`'
+    
+
+
 class UserFavoriteRecipesAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
@@ -149,9 +168,31 @@ class UserShoppingCartRecipesAdmin(admin.ModelAdmin):
         return object.recipe
 
 
+class UserSubscriptionAdmin(admin.ModelAdmin):
+    empty_value_display = '-пусто-'
+    list_display = (
+        'pk',
+        'user',
+        'author'
+    )
+    list_editable = (
+        'user',
+        'author',
+    )
+    list_filter = (
+        'user',
+        'author',
+    )
+    search_fields = (
+        'user',
+        'author',
+    )
+
+
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(User, UserAdmin)
 admin.site.register(UserFavoriteRecipes, UserFavoriteRecipesAdmin)
 admin.site.register(UserShoppingCartRecipes, UserShoppingCartRecipesAdmin)
-admin.site.register(User, UserAdmin)
+admin.site.register(UserSubscription, UserSubscriptionAdmin)

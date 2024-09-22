@@ -27,10 +27,10 @@ class Command(BaseCommand):
                 'Импорт ингредиентов из json-файла в базу данных:',
                 max=len(ingredients)
             )
-            for name, measurement_unit in ingredients:
+            for ingredient in ingredients:
                 Ingredient.objects.get_or_create(
-                    name=name,
-                    measurement_unit=measurement_unit
+                    name=ingredient['name'],
+                    measurement_unit=ingredient['measurement_unit']
                 )
                 incremental_bar.next()
             incremental_bar.finish()
