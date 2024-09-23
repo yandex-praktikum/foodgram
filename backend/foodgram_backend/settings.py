@@ -16,7 +16,7 @@ SECRET_KEY = 'django-insecure-0t2za3mlh@(8)94t1*am$#nx!x-3v5_40jxa2un2$*-b=ycqd6
 DEBUG = True
 
 # Cписок сайтов, с которыми приложение может устанавливать соединение и принимать запросы.
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Определение используемых приложений
@@ -28,7 +28,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_filters',
+    'djoser',
     'rest_framework',
+    'rest_framework.authtoken',
     'recipes',
 ]
 
@@ -75,6 +77,8 @@ DATABASES = {
     }
 }
 
+# Переопределение модели пользователя по умолчанию
+AUTH_USER_MODEL = 'recipes.User'
 
 # Проверка пароля
 AUTH_PASSWORD_VALIDATORS = [
@@ -83,6 +87,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
     {
         'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+        'OPTIONS': {
+            'min_length': 9,
+        }
     },
     {
         'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
@@ -128,6 +135,3 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': PGINATION_PAGE_SIZE,
 }
-
-# Переопределение модели пользователя по умолчанию
-AUTH_USER_MODEL = 'recipes.User'

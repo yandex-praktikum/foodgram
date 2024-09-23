@@ -18,10 +18,8 @@ from recipes.constants import (
     EMAIL_MAX_LENGTH,
     FIRST_NAME_MAX_LENGTH,
     LAST_NAME_MAX_LENGTH,
-    BIO_MAX_LENGTH,
     ROLE_LENGTH_LIMIT,
     ROLE_MAX_LENGTH,
-    PASSWORD_MAX_LENGTH,
 )
 from recipes.validators import username_validator
 
@@ -40,6 +38,9 @@ class User(AbstractUser):
             f'Имя пользователя, не более {USERNAME_MAX_LENGTH} символов.',
             'Допустимые символы: буквы, цифры и @/./+/-/_'
         ),
+        error_messages={
+            'unique': 'Имя пользователя уже ипользуется!'
+        },
         validators=[
             UnicodeUsernameValidator(
                 message=(
@@ -57,6 +58,9 @@ class User(AbstractUser):
         help_text=(
             f'Адрес электронной почты, не более {EMAIL_MAX_LENGTH} символов'
         ),
+        error_messages={
+            'unique': 'Адрес электронной почты уже ипользуется!'
+        },
     )
     first_name = models.CharField(
         verbose_name='Имя Отчество',
@@ -74,21 +78,10 @@ class User(AbstractUser):
             f'Фамилия, не более {LAST_NAME_MAX_LENGTH} символов'
         ),
     )
-    bio = models.CharField(
-        verbose_name='Биография',
-        max_length=BIO_MAX_LENGTH,
+    avatar = models.ImageField(
+        verbose_name='Аватар',
         blank=True,
-        help_text=(
-            f'Биография, не более {BIO_MAX_LENGTH} символов'
-        ),
-    )
-    password = models.CharField(
-        verbose_name='Пароль',
-        max_length=PASSWORD_MAX_LENGTH,
-        help_text=(
-            f'Пароль, не более {PASSWORD_MAX_LENGTH} символов'
-        ),
-        unique=True,
+        null=True,
     )
     role = models.CharField(
         verbose_name='Роль',
@@ -100,7 +93,12 @@ class User(AbstractUser):
         default=UserRole.USER
     )
 
-    REQUIRED_FIELDS = ['email', ]
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        'username',
+        'first_name',
+        'last_name',
+    ]
 
     class Meta(AbstractUser.Meta):
         ordering = ['username']
@@ -361,9 +359,6 @@ class UserSubscription(models.Model):
         related_name='subscription',
         verbose_name='Авторы'
     )
-
-    def __str__(self):
-        return f'{self.user.username} - {self.author.username}'
 
     class Meta:
         verbose_name = 'Подписка на авторов'
