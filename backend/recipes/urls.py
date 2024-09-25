@@ -14,16 +14,18 @@ from recipes.views import (
     UserViewSet,
 )
 
+auth_paths = [
+    path('auth/', include('djoser.urls')),
+    path('auth/', include('djoser.urls.authtoken')),
+]
 
 router = routers.DefaultRouter()
 router.register(r'ingredients', IngredientViewSet, basename='ingredients')
-router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
+router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'users', UserViewSet, basename='users')
 
-
 urlpatterns = [
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('', include(auth_paths)),
     path('', include(router.urls)),
 ]

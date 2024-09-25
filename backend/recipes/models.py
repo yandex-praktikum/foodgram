@@ -4,10 +4,9 @@ backend/recipes/models.py
 """
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
-from django.core.validators import (
-    EmailValidator, MinValueValidator, MaxValueValidator
-)
+from django.core.validators import MinValueValidator
 from django.db import models
+
 
 from recipes.constants import (
     NAME_MAX_LENGTH,
@@ -18,15 +17,8 @@ from recipes.constants import (
     EMAIL_MAX_LENGTH,
     FIRST_NAME_MAX_LENGTH,
     LAST_NAME_MAX_LENGTH,
-    ROLE_LENGTH_LIMIT,
-    ROLE_MAX_LENGTH,
 )
 from recipes.validators import username_validator
-
-
-class UserRole(models.TextChoices):
-    USER = 'user', 'пользователь'
-    ADMIN = 'admin', 'администратор'
 
 
 class User(AbstractUser):
@@ -39,7 +31,7 @@ class User(AbstractUser):
             'Допустимые символы: буквы, цифры и @/./+/-/_'
         ),
         error_messages={
-            'unique': 'Имя пользователя уже ипользуется!'
+            'unique': 'Имя пользователя уже используется!'
         },
         validators=[
             UnicodeUsernameValidator(
@@ -59,13 +51,13 @@ class User(AbstractUser):
             f'Адрес электронной почты, не более {EMAIL_MAX_LENGTH} символов'
         ),
         error_messages={
-            'unique': 'Адрес электронной почты уже ипользуется!'
+            'unique': 'Адрес электронной почты уже используется!'
         },
     )
     first_name = models.CharField(
         verbose_name='Имя Отчество',
         max_length=FIRST_NAME_MAX_LENGTH,
-        blank=True,
+        blank=False,
         help_text=(
             f'Имя Отчество, не более {FIRST_NAME_MAX_LENGTH} символов'
         ),
@@ -73,24 +65,16 @@ class User(AbstractUser):
     last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=LAST_NAME_MAX_LENGTH,
-        blank=True,
+        blank=False,
         help_text=(
             f'Фамилия, не более {LAST_NAME_MAX_LENGTH} символов'
         ),
     )
     avatar = models.ImageField(
-        verbose_name='Аватар',
+        verbose_name='Аватар пользователя',
         blank=True,
         null=True,
-    )
-    role = models.CharField(
-        verbose_name='Роль',
-        max_length=ROLE_MAX_LENGTH,
-        help_text=(
-            f'Роль, не более {ROLE_MAX_LENGTH} символов'
-        ),
-        choices=UserRole.choices,
-        default=UserRole.USER
+        upload_to='media/users/avatars/',
     )
 
     USERNAME_FIELD = 'email'
@@ -101,20 +85,46 @@ class User(AbstractUser):
     ]
 
     class Meta(AbstractUser.Meta):
-        ordering = ['username']
         verbose_name = 'Пользователь'
-        verbose_name_plural = 'Пользователи'
+        verbose_name_plural = 'Пользователи',
+        ordering = [
+            'username',
+            'email',
+        ]
 
     def __str__(self):
-        return f'{self.username} ({self.role[:ROLE_LENGTH_LIMIT]})'
+        return f'{self.username}'
 
-    @property
-    def is_user(self):
-        return self.role == UserRole.USER
 
-    @property
-    def is_admin(self):
-        return self.role == UserRole.ADMIN or self.is_superuser
+class Subscriber(models.Model):
+    """Подписчик.
+    """
+
+    author = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        related_name='subscribing',
+        on_delete=models.CASCADE,
+    )
+    user = models.ForeignKey(
+        User,
+        verbose_name='Подписчик',
+        related_name='subscriber',
+        on_delete=models.CASCADE,
+    )
+
+    class Meta:
+        verbose_name = 'Подписчик'
+        verbose_name_plural = 'Подписчики'
+        constraints = (
+            models.UniqueConstraint(
+                fields=('user', 'author'),
+                name='unique_subscriber'
+            ),
+        )
+
+    def __str__(self):
+        return f'{self.user.username} подписан на {self.author.username}.'
 
 
 class Ingredient(models.Model):
@@ -342,33 +352,3 @@ class UserShoppingCartRecipes(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.recipe.name}'
-
-
-class UserSubscription(models.Model):
-    """Подписки пользователя.
-    """
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='subscriber',
-        verbose_name='Подписчики'
-    )
-    author = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name='subscription',
-        verbose_name='Авторы'
-    )
-
-    class Meta:
-        verbose_name = 'Подписка на авторов'
-        verbose_name_plural = 'Подписки на авторов'
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'author'],
-                name='unique_user_subscription_on_author'
-            )
-        ]
-
-    def __str__(self):
-        return f'{self.user.username} - {self.author.username}'

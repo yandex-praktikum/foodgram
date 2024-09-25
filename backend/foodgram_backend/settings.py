@@ -77,9 +77,6 @@ DATABASES = {
     }
 }
 
-# Переопределение модели пользователя по умолчанию
-AUTH_USER_MODEL = 'recipes.User'
-
 # Проверка пароля
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -117,6 +114,26 @@ STATIC_URL = '/static/'
 
 # Тип поля первичного ключа по умолчанию
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Переопределение модели пользователя по умолчанию
+AUTH_USER_MODEL = 'recipes.User'
+
+# Настройки djoser
+DJOSER = {
+    'LOGIN_FIELD': 'email',
+    'HIDE_USERS': False,
+    'SERIALIZERS': {
+        'current_user': 'recipes.serializers.UserSerializer',
+        'user': 'recipes.serializers.UserSerializer',
+        'user_list': 'recipes.serializers.UserSerializer',
+    },
+    'PERMISSIONS': {
+        'current_user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',),
+        'user': ('djoser.permissions.CurrentUserOrAdminOrReadOnly',),
+        'user_create': ('rest_framework.permissions.AllowAny',),
+        'user_list': ('rest_framework.permissions.AllowAny',),
+    }
+}
 
 # Настройки rest_framework
 REST_FRAMEWORK = {

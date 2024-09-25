@@ -27,7 +27,3 @@ def username_validator(username):
             params={'username': username},
         )
     return username
-
-
-def password_validator(password):
-    pass

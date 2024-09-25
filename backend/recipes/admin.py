@@ -6,12 +6,29 @@ from recipes.models import (
     Recipe,
     RecipeIngredient,
     RecipeTag,
+    Subscriber,
     Tag,
     User,
     UserFavoriteRecipes,
     UserShoppingCartRecipes,
-    UserSubscription,
 )
+
+
+class CustomUserAdmin(UserAdmin):
+    list_display = (
+        'username',
+        'email',
+        'is_staff'
+    )
+    list_display_links = (
+        'username',
+        'email',
+    )
+    search_fields = (
+        'username',
+        'email'
+    )
+    search_help_text = 'Поиск по `username` и `email`'
 
 
 class IngredientAdmin(admin.ModelAdmin):
@@ -27,24 +44,6 @@ class IngredientAdmin(admin.ModelAdmin):
     )
     search_fields = (
         'name',
-    )
-
-
-class TagAdmin(admin.ModelAdmin):
-    list_display = (
-        'name',
-        'slug',
-    )
-    list_display_links = (
-        'name',
-    )
-    list_filter = (
-        'name',
-        'slug',
-    )
-    search_fields = (
-        'name',
-        'slug',
     )
 
 
@@ -114,22 +113,38 @@ class RecipeAdmin(admin.ModelAdmin):
         return recipe_tags
 
 
-class UserAdmin(UserAdmin):
+class SubscriberAdmin(admin.ModelAdmin):
+    empty_value_display = '-пусто-'
     list_display = (
-        'username',
-        'email',
-        'is_staff'
+        'user',
+        'author'
     )
-    list_display_links = (
-        'username',
-        'email',
+    list_filter = (
+        'user',
+        'author',
     )
     search_fields = (
-        'username',
-        'email'
+        'user',
+        'author',
     )
-    search_help_text = 'Поиск по `username` и `email`'
-    
+
+
+class TagAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'slug',
+    )
+    list_display_links = (
+        'name',
+    )
+    list_filter = (
+        'name',
+        'slug',
+    )
+    search_fields = (
+        'name',
+        'slug',
+    )
 
 
 class UserFavoriteRecipesAdmin(admin.ModelAdmin):
@@ -168,31 +183,10 @@ class UserShoppingCartRecipesAdmin(admin.ModelAdmin):
         return object.recipe
 
 
-class UserSubscriptionAdmin(admin.ModelAdmin):
-    empty_value_display = '-пусто-'
-    list_display = (
-        'pk',
-        'user',
-        'author'
-    )
-    list_editable = (
-        'user',
-        'author',
-    )
-    list_filter = (
-        'user',
-        'author',
-    )
-    search_fields = (
-        'user',
-        'author',
-    )
-
-
 admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Tag, TagAdmin)
 admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(User, UserAdmin)
+admin.site.register(Subscriber, SubscriberAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(User, CustomUserAdmin)
 admin.site.register(UserFavoriteRecipes, UserFavoriteRecipesAdmin)
 admin.site.register(UserShoppingCartRecipes, UserShoppingCartRecipesAdmin)
-admin.site.register(UserSubscription, UserSubscriptionAdmin)
