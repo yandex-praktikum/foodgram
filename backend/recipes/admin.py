@@ -9,8 +9,8 @@ from recipes.models import (
     Subscriber,
     Tag,
     User,
-    UserFavoriteRecipes,
-    UserShoppingCartRecipes,
+    UserFavoriteRecipe,
+    UserShoppingCartRecipe,
 )
 
 
@@ -60,15 +60,12 @@ class RecipeTagAdmin(admin.StackedInline):
 class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
-        'pk',
         'name',
-        'author',
-        'image',
-        'text',
         'cooking_time',
-        'get_favorite_count',
-        'get_recipe_ingredients',
-        'get_recipe_tags',
+        'author',
+        #'get_favorite_count',
+        #'get_recipe_ingredients',
+        #'get_recipe_tags',
     )
     list_display_links = (
         'name',
@@ -80,9 +77,9 @@ class RecipeAdmin(admin.ModelAdmin):
         'tags'
     )
     readonly_fields = (
-        'get_favorite_count',
-        'get_recipe_ingredients',
-        'get_recipe_tags',
+        #'get_favorite_count',
+        #'get_recipe_ingredients',
+        #'get_recipe_tags',
     )
     search_fields = (
         'name',
@@ -101,7 +98,7 @@ class RecipeAdmin(admin.ModelAdmin):
         recipe_ingredients = []
         for obj in object.recipe.all():
             recipe_ingredients.append(
-                f'{obj.ingredient.name} - {obj.quantity}'
+                f'{obj.ingredient.name} - {obj.amount}'
                 f'{obj.ingredient.measurement_unit}.'
             )
         return recipe_ingredients
@@ -147,7 +144,7 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
-class UserFavoriteRecipesAdmin(admin.ModelAdmin):
+class UserFavoriteRecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
         'pk',
@@ -165,7 +162,7 @@ class UserFavoriteRecipesAdmin(admin.ModelAdmin):
         return object.recipe
 
 
-class UserShoppingCartRecipesAdmin(admin.ModelAdmin):
+class UserShoppingCartRecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
         'pk',
@@ -188,5 +185,5 @@ admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Subscriber, SubscriberAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(User, CustomUserAdmin)
-admin.site.register(UserFavoriteRecipes, UserFavoriteRecipesAdmin)
-admin.site.register(UserShoppingCartRecipes, UserShoppingCartRecipesAdmin)
+admin.site.register(UserFavoriteRecipe, UserFavoriteRecipeAdmin)
+admin.site.register(UserShoppingCartRecipe, UserShoppingCartRecipeAdmin)

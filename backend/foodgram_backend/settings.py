@@ -2,21 +2,27 @@
 
 """
 
+import os
 from pathlib import Path
 
-from .constants import PGINATION_PAGE_SIZE
+from django.core.management.utils import get_random_secret_key
+from dotenv import load_dotenv
+
+load_dotenv()
+
+from .constants import PAGINATION_PAGE_SIZE
 
 # Создайте пути внутри проекта следующим образом: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # ПРЕДУПРЕЖДЕНИЕ ПО БЕЗОПАСНОСТИ: храните секретный ключ, используемый в рабочей среде, в секрете!
-SECRET_KEY = 'django-insecure-0t2za3mlh@(8)94t1*am$#nx!x-3v5_40jxa2un2$*-b=ycqd6'
+SECRET_KEY = os.getenv('SECRET_KEY', get_random_secret_key())
 
 # ПРЕДУПРЕЖДЕНИЕ ПО БЕЗОПАСНОСТИ: не запускайте программу в режиме отладки в рабочей среде!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', default='False').lower() == 'true'
 
 # Cписок сайтов, с которыми приложение может устанавливать соединение и принимать запросы.
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', default='127.0.0.1, localhost').split(', ')
 
 
 # Определение используемых приложений
@@ -69,13 +75,24 @@ WSGI_APPLICATION = 'foodgram_backend.wsgi.application'
 
 
 # База данных
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('USE_SQLITE', 'False').lower() == 'true':
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('POSTGRES_DB', 'kittygram'),
+            'USER': os.getenv('POSTGRES_USER', 'kittygram_user'),
+            'PASSWORD': os.getenv('POSTGRES_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', ''),
+            'PORT': os.getenv('DB_PORT', 5432)
+        }
+    }
 
 # Проверка пароля
 AUTH_PASSWORD_VALIDATORS = [
@@ -111,6 +128,10 @@ USE_TZ = True
 
 # Статические файлы (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # Тип поля первичного ключа по умолчанию
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
@@ -150,5 +171,5 @@ REST_FRAMEWORK = {
     ],
 
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
-    'PAGE_SIZE': PGINATION_PAGE_SIZE,
+    'PAGE_SIZE': PAGINATION_PAGE_SIZE,
 }
