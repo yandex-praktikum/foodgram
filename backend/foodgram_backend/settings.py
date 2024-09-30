@@ -8,9 +8,10 @@ from pathlib import Path
 from django.core.management.utils import get_random_secret_key
 from dotenv import load_dotenv
 
-load_dotenv()
-
 from .constants import PAGINATION_PAGE_SIZE
+
+
+load_dotenv()
 
 # Создайте пути внутри проекта следующим образом: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
