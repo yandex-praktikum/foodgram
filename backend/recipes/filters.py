@@ -8,7 +8,7 @@ from django_filters import FilterSet, filters
 from recipes.models import (
     Ingredient,
     Recipe,
-    Tag, 
+    Tag,
 )
 
 
@@ -42,13 +42,13 @@ class RecipeFilter(FilterSet):
     def is_favorited_filter(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(favorites__user=user)
+            return queryset.filter(favorite_recipes__user=user)
         return queryset
 
     def is_in_shopping_cart_filter(self, queryset, name, value):
         user = self.request.user
         if value and user.is_authenticated:
-            return queryset.filter(shopping_list__user=user)
+            return queryset.filter(shopping_cart__user=user)
         return queryset
 
 

@@ -2,6 +2,7 @@
 
 """
 
+import os
 from io import BytesIO
 from urllib.parse import urlparse
 
@@ -25,7 +26,7 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from foodgram_backend.settings import BASE_DIR
+from foodgram_backend.settings import STATIC_ROOT
 from recipes.filters import (
     IngredientFilter,
     RecipeFilter,
@@ -52,8 +53,8 @@ from recipes.serializers import (
     TagSerializer,
     UserSerializer,
     UserAvatarSerializer,
-    UserFavoriteRecipeSerializer,
-    UserShoppingCartRecipe
+    UserFavoriteRecipesSerializer,
+    UserShoppingCartRecipesSerializer,
 )
 
 User = get_user_model()
@@ -96,19 +97,40 @@ class RecipeViewSet(ModelViewSet):
         if self.action in ('list', 'retrieve'):
             return RecipeSerializer
         elif self.action == 'favorite':
-            return UserFavoriteRecipeSerializer
+            return UserFavoriteRecipesSerializer
         elif self.action == 'shopping_cart':
-            return UserShoppingCartRecipe
+            return UserShoppingCartRecipesSerializer
         return RecipeCUDSerializer
 
-    def post_to_list(self, request, pk):
-        serializer = self.get_serializer(data=dict(recipe=pk))
+    def add_in_list(self, request, pk):
+        recipe = get_object_or_404(Recipe, id=pk)
+        serializer = self.get_serializer(
+            data={
+                'user': self.request.user,
+                'recipe': recipe.id
+            }
+        )
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=self.request.user)
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        model = serializer.Meta.model
+        if not model.objects.filter(
+            user=request.user,
+            recipe=recipe
+        ).exists():
+            serializer.save(
+                user=self.request.user,
+                recipe=recipe
+            )
+            return Response(
+                serializer.data,
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'errors': 'Рецепт уже в списке.'},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
     @staticmethod
-    def delete_to_list(request, pk, model):
+    def delete_from_list(request, pk, model):
         recipe = get_object_or_404(Recipe, pk=pk)
         existing_recipe, _ = model.objects.filter(
             user=request.user,
@@ -129,14 +151,14 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def favorite(self, request, pk):
-        return self.post_to_list(
+        return self.add_in_list(
             request,
             pk,
         )
 
     @favorite.mapping.delete
-    def delete_favorite(self, request, pk):
-        return self.delete_to_list(
+    def delete_from_favorite(self, request, pk):
+        return self.delete_from_list(
             request,
             pk,
             UserFavoriteRecipe,
@@ -148,14 +170,11 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def shopping_cart(self, request, pk):
-        return self.post_to_list(
-            request,
-            pk,
-        )
+        return self.add_in_list(request, pk)
 
     @shopping_cart.mapping.delete
     def delete_from_shopping_cart(self, request, pk):
-        return self.delete_to_list(
+        return self.delete_from_list(
             request,
             pk,
             UserShoppingCartRecipe,
@@ -167,7 +186,13 @@ class RecipeViewSet(ModelViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def download_shopping_cart(self, request):
-        path_to_fonts = BASE_DIR / 'data/fonts/FreeSans.ttf'
+        ingredients = RecipeIngredient.objects.filter(
+            recipe__shopping_cart__user=request.user
+        ).values(
+            'ingredient__name',
+            'ingredient__measurement_unit',
+        ).annotate(amount_of_ingredients=Sum('amount'))
+        path_to_fonts = os.path.join(STATIC_ROOT, 'fonts/FreeSans.ttf')
         buffer = BytesIO()
         pdf_file = canvas.Canvas(buffer)
         pdfmetrics.registerFont(
@@ -177,20 +202,15 @@ class RecipeViewSet(ModelViewSet):
             )
         )
         pdf_file.setFont('FreeSans', 15)
-        ingredients = RecipeIngredient.objects.filter(
-            recipe__shopping_list__user=request.user
-        ).values(
-            'ingredient__name',
-            'ingredient__measurement_unit',
-        ).annotate(amount_of_ingredients=Sum('amount'))
-
-        pdf_file.drawString(100, 750, 'Ваш список покупок')
+        pdf_file.drawString(100, 750, 'Список покупок для рецептов:')
 
         y = 700
+        counter = 0
         for ingredient in ingredients:
             pdf_file.drawString(
                 100,
                 y,
+                f'{counter+1}) '
                 f'{ingredient["ingredient__name"]} - '
                 f'{ingredient["amount_of_ingredients"]} '
                 f'{ingredient["ingredient__measurement_unit"]}',
@@ -203,7 +223,7 @@ class RecipeViewSet(ModelViewSet):
         response = FileResponse(
             buffer,
             as_attachment=True,
-            filename='shopping_list.pdf'
+            filename=f'{request.user.username}_shopping_cart_recipe.pdf'
         )
         return response
 
@@ -325,8 +345,8 @@ class UserViewSet(djoser_views.UserViewSet):
         permission_classes=(IsAuthenticated,),
     )
     def subscriptions(self, request):
-        followings = Subscriber.objects.filter(user=self.request.user)
-        pagination = self.paginate_queryset(followings)
+        subscriptions = Subscriber.objects.filter(user=self.request.user)
+        pagination = self.paginate_queryset(subscriptions)
         serializer = SubscriberSerializer(
             pagination,
             many=True,

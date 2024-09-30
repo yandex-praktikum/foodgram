@@ -306,10 +306,7 @@ class RecipeTag(models.Model):
         )
 
 
-class UserRecipesMixin(models.Model):
-    """Миксин моделей избранного и списка покупок пользователя.
-    """
-
+class UserRecipe(models.Model):
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
@@ -328,7 +325,7 @@ class UserRecipesMixin(models.Model):
         return f'{self.user.username} - {self.recipe.name}'
 
 
-class UserFavoriteRecipe(UserRecipesMixin):
+class UserFavoriteRecipe(UserRecipe):
     """Избранный рецепт пользователя.
     """
 
@@ -344,7 +341,7 @@ class UserFavoriteRecipe(UserRecipesMixin):
         ]
 
 
-class UserShoppingCartRecipe(UserRecipesMixin):
+class UserShoppingCartRecipe(UserRecipe):
     """Рецепт из пользовательской корзины.
     """
 

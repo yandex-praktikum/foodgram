@@ -71,10 +71,15 @@ class UserSerializer(serializers.ModelSerializer):
         )
 
     def get_is_subscribed(self, object):
-        user = self.context.get('request').user
-        return Subscriber.objects.filter(
-            user=user.id, author=object
-        ).exists()
+        request = self.context.get('request')
+        return (
+            request
+            and request.user.is_authenticated
+            and Subscriber.objects.filter(
+                user=request.user,
+                author=object,
+            ).exists()
+        )
 
 
 class UserAvatarSerializer(serializers.ModelSerializer):
@@ -120,10 +125,10 @@ class UserRecipeSerializer(serializers.ModelSerializer):
 
 
 class UserRecipesSerializer(serializers.ModelSerializer):
-    """Сериализатор рецептов пользователя.
+    """Сериализатор избранного и списка покупок.
     """
 
-    model_name = ''
+    name_of_model = ''
 
     class Meta:
         fields = (
@@ -133,15 +138,6 @@ class UserRecipesSerializer(serializers.ModelSerializer):
         read_only_fields = ('user',)
 
     def validate(self, data):
-        user = self.context.get('request').user
-        recipe = data.get('recipe')
-        if self.Meta.model.objects.filter(
-            user=user,
-            recipe=recipe,
-        ).exists():
-            raise ValidationError(
-                f'Рецепт уже добавлен в {self.model_name}'
-            )
         return data
 
     def to_representation(self, instance):
@@ -151,7 +147,7 @@ class UserRecipesSerializer(serializers.ModelSerializer):
         ).data
 
 
-class UserFavoriteRecipeSerializer(UserRecipesSerializer):
+class UserFavoriteRecipesSerializer(UserRecipesSerializer):
     """Сериализатор модели UserFavoriteRecipe.
     """
 
@@ -171,7 +167,41 @@ class UserShoppingCartRecipesSerializer(UserRecipesSerializer):
         model = UserShoppingCartRecipe
 
 
-# Переделать
+class SubscriberRepresentationSerializer(UserSerializer):
+    """Сериализатор представлений подписчиков.
+    """
+    recipes = serializers.SerializerMethodField()
+    recipes_count = serializers.ReadOnlyField(source='recipes.count')
+
+    class Meta():
+        model = User
+        fields = (
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'is_subscribed',
+            'avatar',
+            'recipes',
+            'recipes_count',
+        )
+
+    def get_recipes(self, obj):
+        request = self.context.get('request')
+        queryset = obj.recipes.all()
+        limit = request.query_params.get('recipes_limit')
+        if limit:
+            try:
+                queryset = queryset[:int(limit)]
+            except (TypeError, ValueError):
+                pass
+        return UserRecipeSerializer(
+            queryset,
+            many=True,
+        ).data
+
+
 class SubscriberSerializer(serializers.ModelSerializer):
     """Сериализатор подписчикиов.
     """
@@ -198,7 +228,7 @@ class SubscriberSerializer(serializers.ModelSerializer):
         return data
 
     def to_representation(self, instance):
-        return UserRecipesSerializer(
+        return SubscriberRepresentationSerializer(
             instance.author,
             context=self.context,
         ).data
