@@ -207,10 +207,11 @@ class RecipeViewSet(ModelViewSet):
         y = 700
         counter = 0
         for ingredient in ingredients:
+            counter += 1
             pdf_file.drawString(
                 100,
                 y,
-                f'{counter+1}) '
+                f'{counter}) '
                 f'{ingredient["ingredient__name"]} - '
                 f'{ingredient["amount_of_ingredients"]} '
                 f'{ingredient["ingredient__measurement_unit"]}',
