@@ -2,19 +2,13 @@
 
 """
 
-import os
-from io import BytesIO
 from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
 from django.db.models import Sum
-from django.http import FileResponse, HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from djoser import views as djoser_views
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
@@ -26,19 +20,16 @@ from rest_framework.permissions import (
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from foodgram_backend.settings import STATIC_ROOT
 from recipes.filters import (
     IngredientFilter,
     RecipeFilter,
 )
 from recipes.models import (
     Ingredient,
-    Tag,
     Recipe,
     RecipeIngredient,
-    RecipeTag,
-    ShortLink,
     Subscriber,
+    Tag,
     UserFavoriteRecipe,
     UserShoppingCartRecipe,
 )
@@ -56,13 +47,12 @@ from recipes.serializers import (
     UserFavoriteRecipesSerializer,
     UserShoppingCartRecipesSerializer,
 )
+from recipes.utils import get_shopping_cart_file
 
 User = get_user_model()
 
 
 class IngredientViewSet(ReadOnlyModelViewSet):
-    """Маршрутизация ингридиентов.
-    """
     queryset = Ingredient.objects.all()
     serializer_class = IngredientSerializer
     pagination_class = None
@@ -75,8 +65,6 @@ class IngredientViewSet(ReadOnlyModelViewSet):
 
 
 class TagViewSet(ReadOnlyModelViewSet):
-    """Маршрутизация тегов.
-    """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     pagination_class = None
@@ -111,13 +99,13 @@ class RecipeViewSet(ModelViewSet):
             }
         )
         serializer.is_valid(raise_exception=True)
+        # Замечание: Валидацию выносим в сериализатор.
         model = serializer.Meta.model
         if not model.objects.filter(
             user=request.user,
             recipe=recipe
         ).exists():
             serializer.save(
-                user=self.request.user,
                 recipe=recipe
             )
             return Response(
@@ -192,41 +180,7 @@ class RecipeViewSet(ModelViewSet):
             'ingredient__name',
             'ingredient__measurement_unit',
         ).annotate(amount_of_ingredients=Sum('amount'))
-        path_to_fonts = os.path.join(STATIC_ROOT, 'fonts/FreeSans.ttf')
-        buffer = BytesIO()
-        pdf_file = canvas.Canvas(buffer)
-        pdfmetrics.registerFont(
-            TTFont(
-                'FreeSans',
-                path_to_fonts,
-            )
-        )
-        pdf_file.setFont('FreeSans', 15)
-        pdf_file.drawString(100, 750, 'Список покупок для рецептов:')
-
-        y = 700
-        counter = 0
-        for ingredient in ingredients:
-            counter += 1
-            pdf_file.drawString(
-                100,
-                y,
-                f'{counter}) '
-                f'{ingredient["ingredient__name"]} - '
-                f'{ingredient["amount_of_ingredients"]} '
-                f'{ingredient["ingredient__measurement_unit"]}',
-            )
-            y -= 20
-
-        pdf_file.showPage()
-        pdf_file.save()
-        buffer.seek(0)
-        response = FileResponse(
-            buffer,
-            as_attachment=True,
-            filename=f'{request.user.username}_shopping_cart_recipe.pdf'
-        )
-        return response
+        return get_shopping_cart_file(ingredients, request.user.username)
 
     @action(
         detail=True,
@@ -317,7 +271,7 @@ class UserViewSet(djoser_views.UserViewSet):
             context={'request': request},
         )
         serializer.is_valid(raise_exception=True)
-        serializer.save(user=request.user)
+        serializer.save()
         return Response(
             serializer.data,
             status=status.HTTP_201_CREATED

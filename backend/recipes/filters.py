@@ -17,7 +17,6 @@ class RecipeFilter(FilterSet):
 
     """
 
-    author = filters.CharFilter(field_name='author__id')
     tags = filters.ModelMultipleChoiceFilter(
         field_name='tags__slug',
         to_field_name='slug',

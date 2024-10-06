@@ -2,8 +2,7 @@
 
 backend/recipes/urls.py
 """
-from django.conf import settings
-from django.conf.urls.static import static
+
 from django.urls import include, path
 from rest_framework import routers
 
@@ -15,17 +14,17 @@ from recipes.views import (
 )
 
 auth_paths = [
-    path('auth/', include('djoser.urls')),
-    path('auth/', include('djoser.urls.authtoken')),
+    path('', include('djoser.urls')),
+    path('', include('djoser.urls.authtoken')),
 ]
 
 router = routers.DefaultRouter()
-router.register(r'ingredients', IngredientViewSet, basename='ingredients')
+router.register('ingredients', IngredientViewSet, basename='ingredients')
 router.register(r'recipes', RecipeViewSet, basename='recipes')
 router.register(r'tags', TagViewSet, basename='tags')
 router.register(r'users', UserViewSet, basename='users')
 
 urlpatterns = [
-    path('', include(auth_paths)),
+    path('auth/', include(auth_paths)),
     path('', include(router.urls)),
 ]

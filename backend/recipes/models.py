@@ -2,6 +2,7 @@
 
 backend/recipes/models.py
 """
+
 import random
 
 from django.contrib.auth.models import AbstractUser
@@ -9,23 +10,28 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.core.validators import MinValueValidator
 from django.db import models
 
-
 from recipes.constants import (
-    NAME_MAX_LENGTH,
-    MEASUREMENT_UNIT_MAX_LENGTH,
-    MIN_VALUE_VALIDATOR,
-    SLUG_MAX_LENGTH,
-    USERNAME_MAX_LENGTH,
     EMAIL_MAX_LENGTH,
     FIRST_NAME_MAX_LENGTH,
     LAST_NAME_MAX_LENGTH,
+    MEASUREMENT_UNIT_MAX_LENGTH,
+    MIN_VALUE_VALIDATOR,
+    NAME_MAX_LENGTH,
     SHORT_LINK_LENGTH,
     SHORT_LINK_SYMBOLS,
+    SLUG_MAX_LENGTH,
+    USERNAME_MAX_LENGTH,
 )
 from recipes.validators import username_validator
 
 
 class User(AbstractUser):
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = [
+        'username',
+        'first_name',
+        'last_name',
+    ]
     username = models.CharField(
         verbose_name='Имя пользователя',
         max_length=USERNAME_MAX_LENGTH,
@@ -61,7 +67,6 @@ class User(AbstractUser):
     first_name = models.CharField(
         verbose_name='Имя Отчество',
         max_length=FIRST_NAME_MAX_LENGTH,
-        blank=False,
         help_text=(
             f'Имя Отчество, не более {FIRST_NAME_MAX_LENGTH} символов'
         ),
@@ -69,7 +74,6 @@ class User(AbstractUser):
     last_name = models.CharField(
         verbose_name='Фамилия',
         max_length=LAST_NAME_MAX_LENGTH,
-        blank=False,
         help_text=(
             f'Фамилия, не более {LAST_NAME_MAX_LENGTH} символов'
         ),
@@ -80,13 +84,6 @@ class User(AbstractUser):
         null=True,
         upload_to='media/users/avatars/',
     )
-
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = [
-        'username',
-        'first_name',
-        'last_name',
-    ]
 
     class Meta(AbstractUser.Meta):
         verbose_name = 'Пользователь'
@@ -101,9 +98,6 @@ class User(AbstractUser):
 
 
 class Subscriber(models.Model):
-    """Подписчик.
-    """
-
     author = models.ForeignKey(
         User,
         verbose_name='Автор',
@@ -126,6 +120,7 @@ class Subscriber(models.Model):
                 name='unique_subscriber'
             ),
         )
+        ordering = ('-id',)
 
     def __str__(self):
         return f'{self.user.username} подписан на {self.author.username}.'
@@ -326,8 +321,6 @@ class UserRecipe(models.Model):
 
 
 class UserFavoriteRecipe(UserRecipe):
-    """Избранный рецепт пользователя.
-    """
 
     class Meta:
         default_related_name = 'favorite_recipes'
@@ -342,8 +335,6 @@ class UserFavoriteRecipe(UserRecipe):
 
 
 class UserShoppingCartRecipe(UserRecipe):
-    """Рецепт из пользовательской корзины.
-    """
 
     class Meta:
         default_related_name = 'shopping_cart'
@@ -358,9 +349,6 @@ class UserShoppingCartRecipe(UserRecipe):
 
 
 class ShortLink(models.Model):
-    """Короткая ссылка.
-    """
-
     full_url = models.URLField()
     short_url = models.CharField(
         max_length=SHORT_LINK_LENGTH,

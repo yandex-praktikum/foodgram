@@ -14,7 +14,24 @@ from recipes.models import (
 )
 
 
-class CustomUserAdmin(UserAdmin):
+class SubscriberInline(admin.TabularInline):
+    model = Subscriber
+    extra = 0
+    fk_name = 'user'
+
+
+class UserFavoriteRecipeInline(admin.TabularInline):
+    model = UserFavoriteRecipe
+    extra = 0
+
+
+class UserShoppingCartRecipeInline(admin.TabularInline):
+    model = UserShoppingCartRecipe
+    extra = 0
+
+
+@admin.register(User)
+class UserAdmin(UserAdmin):
     list_display = (
         'username',
         'email',
@@ -24,6 +41,11 @@ class CustomUserAdmin(UserAdmin):
         'username',
         'email',
     )
+    inlines = (
+        SubscriberInline,
+        UserFavoriteRecipeInline,
+        UserShoppingCartRecipeInline
+    )
     search_fields = (
         'username',
         'email'
@@ -31,6 +53,7 @@ class CustomUserAdmin(UserAdmin):
     search_help_text = 'Поиск по `username` и `email`'
 
 
+@admin.register(Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -57,15 +80,13 @@ class RecipeTagAdmin(admin.StackedInline):
     autocomplete_fields = ('tag',)
 
 
+@admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
         'name',
         'cooking_time',
         'author',
-        #'get_favorite_count',
-        #'get_recipe_ingredients',
-        #'get_recipe_tags',
     )
     list_display_links = (
         'name',
@@ -75,11 +96,6 @@ class RecipeAdmin(admin.ModelAdmin):
         'name',
         'author',
         'tags'
-    )
-    readonly_fields = (
-        #'get_favorite_count',
-        #'get_recipe_ingredients',
-        #'get_recipe_tags',
     )
     search_fields = (
         'name',
@@ -104,12 +120,11 @@ class RecipeAdmin(admin.ModelAdmin):
         return recipe_ingredients
 
     def get_recipe_tags(self, object):
-        recipe_tags = []
-        for obj in object.tags.all():
-            recipe_tags.append(obj.name)
+        recipe_tags = [obj.name for obj in object.tags.all()]
         return recipe_tags
 
 
+@admin.register(Subscriber)
 class SubscriberAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
@@ -121,11 +136,12 @@ class SubscriberAdmin(admin.ModelAdmin):
         'author',
     )
     search_fields = (
-        'user',
-        'author',
+        'author__username',
+        'user__username'
     )
 
 
+@admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = (
         'name',
@@ -144,6 +160,7 @@ class TagAdmin(admin.ModelAdmin):
     )
 
 
+@admin.register(UserFavoriteRecipe)
 class UserFavoriteRecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
@@ -155,13 +172,14 @@ class UserFavoriteRecipeAdmin(admin.ModelAdmin):
         'user',
     )
     search_fields = (
-        'user',
+        'user__username',
     )
 
     def get_recipe(self, object):
         return object.recipe
 
 
+@admin.register(UserShoppingCartRecipe)
 class UserShoppingCartRecipeAdmin(admin.ModelAdmin):
     empty_value_display = '-пусто-'
     list_display = (
@@ -173,17 +191,8 @@ class UserShoppingCartRecipeAdmin(admin.ModelAdmin):
         'user',
     )
     search_fields = (
-        'user',
+        'user__username',
     )
 
     def get_recipe(self, object):
         return object.recipe
-
-
-admin.site.register(Ingredient, IngredientAdmin)
-admin.site.register(Recipe, RecipeAdmin)
-admin.site.register(Subscriber, SubscriberAdmin)
-admin.site.register(Tag, TagAdmin)
-admin.site.register(User, CustomUserAdmin)
-admin.site.register(UserFavoriteRecipe, UserFavoriteRecipeAdmin)
-admin.site.register(UserShoppingCartRecipe, UserShoppingCartRecipeAdmin)

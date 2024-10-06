@@ -244,5 +244,6 @@ http://localhost:8888/
 ```bash
 sudo docker compose -f docker-compose.yml down
 ```
+[Документация](https://d7m2m2-foodgram.ddns.net/api/docs/).
 
 ## Авторский коллектив под руководством Д.М. Маренинова

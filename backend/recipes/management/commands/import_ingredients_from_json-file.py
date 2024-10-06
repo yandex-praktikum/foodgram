@@ -4,11 +4,15 @@ import_ingredients_from_json-file.py
 """
 
 import json
+import os
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from progress.bar import IncrementalBar
 
 from recipes.models import Ingredient
+
+DEFAULT_PATH = os.path.join(settings.BASE_DIR, 'data/ingredients.json')
 
 
 class Command(BaseCommand):
@@ -18,11 +22,19 @@ class Command(BaseCommand):
         parser.add_argument('-P', '--path', type=str, help='Путь json-файла.')
 
     def handle(self, *args, **kwargs):
-        path = kwargs['path']
-        if path:
-            with open(path, 'r', encoding='utf-8') as file:
-                file_content = file.read()
-                ingredients = json.loads(file_content)
+        if kwargs['path']:
+            path = kwargs['path']
+        else:
+            path = DEFAULT_PATH
+            self.stdout.write(
+                self.style.WARNING(
+                    "Не указан путь json-файла. "
+                    f'Выбран json-файл по умолчанию "{DEFAULT_PATH}".'
+                )
+            )
+        with open(path, 'r', encoding='utf-8') as file:
+            file_content = file.read()
+            ingredients = json.loads(file_content)
             incremental_bar = IncrementalBar(
                 'Импорт ингредиентов из json-файла в базу данных:',
                 max=len(ingredients)
@@ -34,13 +46,9 @@ class Command(BaseCommand):
                 )
                 incremental_bar.next()
             incremental_bar.finish()
-            self.stdout.write(
-                self.style.SUCCESS(
-                    'Ингредиенты успешно импортированы из json-файла '
-                    f'{path} в базу данных.'
-                )
+        self.stdout.write(
+            self.style.SUCCESS(
+                'Ингредиенты успешно импортированы из json-файла '
+                f'{path} в базу данных.'
             )
-        else:
-            self.stdout.write(
-                self.style.WARNING("Не указан путь json-файла.")
-            )
+        )

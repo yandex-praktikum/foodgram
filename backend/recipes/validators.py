@@ -3,23 +3,8 @@ from django.utils.translation import gettext_lazy as _
 
 
 def username_validator(username):
-    invalid_usernames = [
-        'admin',
-        'adminadmin',
-        'admin_admin',
-        'me',
-        'meme',
-        'mememe',
-        'password',
-        'set_password',
-        'subscriptions',
-        'subscribe',
-        'subscriber',
-        'superuser',
-        'super_user',
-        'user'
-    ]
-    if username in invalid_usernames:
+    invalid_username = 'me'
+    if username == invalid_username:
         raise ValidationError(
             _(
                 '%(username)s недопустимо использовать как имя пользователя.'
