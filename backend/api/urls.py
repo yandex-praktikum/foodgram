@@ -13,7 +13,8 @@ router.register('tags', TagViewSet)
 router.register('ingredients', IngredientViewSet)
 
 urlpatterns = [
-    re_path(r'auth/', include('djoser.urls.authtoken')),
+    re_path(r'auth/', include('djoser.urls')), # Работа с пользователями
+    re_path(r'auth/', include('djoser.urls.authtoken')),  # Работа с токенами
     path('', include(router.urls)),
     path('recipes/<int:pk>/get-link/', ShortLinkAPIView.as_view()),
 ]
