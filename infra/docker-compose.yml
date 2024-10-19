@@ -1,0 +1,36 @@
+services:
+
+  backend:
+    container_name: foodgram-back
+    build: ../backend
+    volumes:
+      - static_value:/app/project/static/
+      - media_value:/app/project/media/
+    ports:
+      - "8000:8000"
+    command: "sh /entrypoint.sh"
+    env_file:
+      - ../backend/.env
+
+
+  frontend:
+    container_name: foodgram-front
+    build: ../frontend
+    volumes:
+      - ../frontend/:/app/result_build/
+  nginx:
+    container_name: foodgram-proxy
+    image: nginx:1.25.4-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - ../frontend/build:/usr/share/nginx/html/
+      - ../docs/:/usr/share/nginx/html/api/docs/
+      - static_value:/var/html/static/
+      - media_value:/var/html/media/
+
+
+volumes:
+  static_value:
+  media_value:
