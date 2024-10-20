@@ -26,7 +26,7 @@ from .serializers import (
     UserSerializer,
 )
 from .paginations import CustomPagination
-from .permissions import AuthorPermission
+from .permissions import AuthorPermission, IsAuthorOrReadOnly
 
 from typing import Sequence
 
@@ -51,7 +51,7 @@ class RecipeView(ModelViewSet):
     queryset = Recipe.objects.all()
     filter_backends = (DjangoFilterBackend,)
     pagination_class = CustomPagination
-    permission_classes = (AuthorPermission,)
+    permission_classes = (IsAuthorOrReadOnly,)
     serializer_class = RecipeWriteSerializer
     filterset_class = RecipeFilter
 

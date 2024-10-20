@@ -34,6 +34,8 @@ class UserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj: User) -> bool:
         request: Request = self.context["request"]
+        if self.context['request'].user.is_anonymous:
+            return False
         return Follow.objects.filter(user=request.user, author=obj.id).exists()
 
     class Meta:
@@ -67,7 +69,7 @@ class RecipeIngredientSerializer(ModelSerializer):
 
 class RecipeReadSerializer(ModelSerializer):
     tags = TagSerializer(many=True)
-    author = UserSerializer
+    author = UserSerializer(read_only=True, many=False)
     ingredients = RecipeIngredientSerializer(many=True)
     is_favorited = SerializerMethodField()
     is_in_shopping_cart = SerializerMethodField()
