@@ -1,5 +1,13 @@
 services:
 
+  postgres:
+    image: postgres:15-alpine
+    container_name: example-db
+    ports:
+    - "${POSTGRES_PORT}:5432"
+    env_file:
+    - ../backend/.env
+
   backend:
     container_name: foodgram-back
     build: ../backend
