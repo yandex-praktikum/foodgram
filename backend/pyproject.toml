@@ -23,3 +23,9 @@ django-environ = "^0.11.2"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.ruff]
+line-length = 79
+extend-ignore = []
+select = ["E", "W", "F", "C", "B", "N"]

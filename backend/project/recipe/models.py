@@ -13,11 +13,17 @@ class Recipe(models.Model):
         related_name="recipes",
     )
     name = models.CharField(max_length=255, verbose_name="Название")
-    image = models.ImageField(upload_to="img/recipes/", verbose_name="Картинка")
+    image = models.ImageField(
+        upload_to="img/recipes/", verbose_name="Картинка"
+    )
     text = models.TextField(verbose_name="Описание")
-    ingredients = models.ManyToManyField(Ingredient, verbose_name="Ингридиенты")
+    ingredients = models.ManyToManyField(
+        Ingredient, verbose_name="Ингридиенты"
+    )
     tags = models.ManyToManyField(Tag, verbose_name="Тэги")
-    cooking_time = models.PositiveSmallIntegerField(verbose_name="Время приготовления")
+    cooking_time = models.PositiveSmallIntegerField(
+        verbose_name="Время приготовления"
+    )
     created_at = models.DateTimeField(
         auto_now_add=True, verbose_name="Дата создания рецепта"
     )
@@ -55,7 +61,10 @@ class RecipeIngredient(models.Model):
 
 class FavoriteRecipe(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name='favorites'
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        related_name="favorites",
     )
     recipe = models.ForeignKey(
         Recipe,
@@ -63,7 +72,9 @@ class FavoriteRecipe(models.Model):
         verbose_name="Рецепт",
         related_name="favorites",
     )
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Дата добавления"
+    )
 
     def __str__(self) -> str:
         return f"{self.user} - {self.recipe}"
@@ -75,10 +86,17 @@ class FavoriteRecipe(models.Model):
 
 class ShoppingList(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, verbose_name="Пользователь", related_name='shopping_list'
+        User,
+        on_delete=models.CASCADE,
+        verbose_name="Пользователь",
+        related_name="shopping_list",
     )
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, verbose_name="Рецепт")
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата добавления")
+    recipe = models.ForeignKey(
+        Recipe, on_delete=models.CASCADE, verbose_name="Рецепт"
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name="Дата добавления"
+    )
 
     def __str__(self) -> str:
         return f"Список покупок для {self.user} - {self.recipe}"

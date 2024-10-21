@@ -27,7 +27,10 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=255, verbose_name="Название")),
+                (
+                    "name",
+                    models.CharField(max_length=255, verbose_name="Название"),
+                ),
                 (
                     "image",
                     models.ImageField(
@@ -68,7 +71,10 @@ class Migration(migrations.Migration):
                         to="ingredient.ingredient", verbose_name="Ингридиенты"
                     ),
                 ),
-                ("tags", models.ManyToManyField(to="tag.tag", verbose_name="Тэги")),
+                (
+                    "tags",
+                    models.ManyToManyField(to="tag.tag", verbose_name="Тэги"),
+                ),
             ],
             options={
                 "verbose_name": "Рецепт",
@@ -130,7 +136,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "amount",
-                    models.PositiveIntegerField(default=1, verbose_name="Количество"),
+                    models.PositiveIntegerField(
+                        default=1, verbose_name="Количество"
+                    ),
                 ),
                 (
                     "ingredient",

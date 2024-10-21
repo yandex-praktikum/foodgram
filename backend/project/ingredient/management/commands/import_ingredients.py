@@ -18,6 +18,8 @@ class Command(BaseCommand):
                         name=name, measurement_unit=measurement_unit
                     )
 
-            self.stdout.write(self.style.SUCCESS(f"Ингредиенты успешно добавлены."))
+            self.stdout.write(
+                self.style.SUCCESS("Ингредиенты успешно добавлены.")
+            )
         except Exception as e:
             self.stderr.write(self.style.ERROR(f"Ошибка: {e}"))

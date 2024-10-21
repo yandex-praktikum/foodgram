@@ -29,7 +29,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "slug",
-                    models.SlugField(max_length=55, unique=True, verbose_name="Slug"),
+                    models.SlugField(
+                        max_length=55, unique=True, verbose_name="Slug"
+                    ),
                 ),
                 (
                     "created_at",

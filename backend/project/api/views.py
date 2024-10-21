@@ -2,15 +2,21 @@ from django.db.models import Sum
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
 from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
-from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    IsAuthenticated,
+)
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.decorators import action
-from rest_framework.pagination import PageNumberPagination
 from rest_framework import status
 from django_filters.rest_framework import DjangoFilterBackend
-from recipe.models import Recipe, RecipeIngredient, ShoppingList, FavoriteRecipe
+from recipe.models import (
+    Recipe,
+    RecipeIngredient,
+    ShoppingList,
+    FavoriteRecipe,
+)
 from users.models import User, Follow
 from tag.models import Tag
 from ingredient.models import Ingredient
@@ -26,7 +32,7 @@ from .serializers import (
     UserSerializer,
 )
 from .paginations import CustomPagination
-from .permissions import AuthorPermission, IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 
 from typing import Sequence
 
@@ -55,7 +61,9 @@ class RecipeView(ModelViewSet):
     serializer_class = RecipeWriteSerializer
     filterset_class = RecipeFilter
 
-    def get_serializer_class(self) -> RecipeReadSerializer | RecipeWriteSerializer:
+    def get_serializer_class(
+        self,
+    ) -> RecipeReadSerializer | RecipeWriteSerializer:
         if self.action in ["create", "update", "partial_update"]:
             return RecipeWriteSerializer
         else:
@@ -112,7 +120,9 @@ class RecipeView(ModelViewSet):
     )
     def download_shopping_cart(self, request: Request) -> Response:
         ingredients = (
-            RecipeIngredient.objects.filter(recipe__shoppinglist__user=request.user)
+            RecipeIngredient.objects.filter(
+                recipe__shoppinglist__user=request.user
+            )
             .order_by("ingredient__name")
             .values("ingredient__name", "ingredient__measurement_unit")
             .annotate(amount=Sum("amount"))
@@ -137,7 +147,9 @@ class RecipeView(ModelViewSet):
     @create_shopping_cart.mapping.delete
     def delete_shopping_cart(self, request, pk):
         get_object_or_404(
-            ShoppingList, user=request.user.id, recipe=get_object_or_404(Recipe, id=pk)
+            ShoppingList,
+            user=request.user.id,
+            recipe=get_object_or_404(Recipe, id=pk),
         ).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -173,9 +185,10 @@ class UserView(UserViewSet):
         user = request.user
         queryset = User.objects.filter(following__user=user)
         pages = self.paginate_queryset(queryset)
-        serializer = AuthorSerializer(pages, many=True, context={"request": request})
+        serializer = AuthorSerializer(
+            pages, many=True, context={"request": request}
+        )
         return self.get_paginated_response(serializer.data)
-
 
     @action(
         detail=False,
@@ -185,7 +198,9 @@ class UserView(UserViewSet):
     )
     def avatar(self, request: Request) -> Response:
         user: User = request.user
-        serializer = AuthorSerializer(user, data=request.data, partial=True, context={"request": request})
+        serializer = AuthorSerializer(
+            user, data=request.data, partial=True, context={"request": request}
+        )
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)

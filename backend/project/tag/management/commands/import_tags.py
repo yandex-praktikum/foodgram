@@ -17,9 +17,7 @@ class Command(BaseCommand):
                     tag, created = Tag.objects.get_or_create(
                         name=name, slug=slug
                     )
-                    
 
-            self.stdout.write(self.style.SUCCESS(f"Теги успешно добавлены."))
+            self.stdout.write(self.style.SUCCESS("Теги успешно добавлены."))
         except Exception as e:
             self.stderr.write(self.style.ERROR(f"Ошибка: {e}"))
-

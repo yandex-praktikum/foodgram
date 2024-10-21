@@ -28,7 +28,9 @@ class RecipeAdmin(admin.ModelAdmin):
         return obj.favorites.count()
 
     def get_ingredients(self, obj: Recipe):
-        return ", ".join([ingredients.name for ingredients in obj.ingredients.all()])
+        return ", ".join(
+            [ingredients.name for ingredients in obj.ingredients.all()]
+        )
 
 
 @admin.register(FavoriteRecipe)

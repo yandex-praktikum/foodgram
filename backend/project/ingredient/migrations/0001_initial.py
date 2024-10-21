@@ -21,21 +21,28 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("name", models.CharField(max_length=255, verbose_name="Название")),
+                (
+                    "name",
+                    models.CharField(max_length=255, verbose_name="Название"),
+                ),
                 (
                     "measurement_unit",
-                    models.CharField(max_length=32, verbose_name="Единица измерения"),
+                    models.CharField(
+                        max_length=32, verbose_name="Единица измерения"
+                    ),
                 ),
                 (
                     "created_at",
                     models.DateTimeField(
-                        auto_now_add=True, verbose_name="Дата создания ингредиента"
+                        auto_now_add=True,
+                        verbose_name="Дата создания ингредиента",
                     ),
                 ),
                 (
                     "updated_at",
                     models.DateTimeField(
-                        auto_now=True, verbose_name="Дата обновления ингредиента"
+                        auto_now=True,
+                        verbose_name="Дата обновления ингредиента",
                     ),
                 ),
             ],

@@ -1,5 +1,10 @@
 from tag.models import Tag
-from recipe.models import Recipe, RecipeIngredient, FavoriteRecipe, ShoppingList
+from recipe.models import (
+    Recipe,
+    RecipeIngredient,
+    FavoriteRecipe,
+    ShoppingList,
+)
 from ingredient.models import Ingredient
 from users.models import User, Follow
 from rest_framework.serializers import (
@@ -15,6 +20,7 @@ from drf_extra_fields.fields import Base64ImageField
 import logging
 
 logger = logging.getLogger(__name__)
+
 
 class TagSerializer(ModelSerializer):
     class Meta:
@@ -34,7 +40,7 @@ class UserSerializer(UserSerializer):
 
     def get_is_subscribed(self, obj: User) -> bool:
         request: Request = self.context["request"]
-        if self.context['request'].user.is_anonymous:
+        if self.context["request"].user.is_anonymous:
             return False
         return Follow.objects.filter(user=request.user, author=obj.id).exists()
 
@@ -79,13 +85,17 @@ class RecipeReadSerializer(ModelSerializer):
         request: Request = self.context["request"]
         if request.user.is_anonymous:
             return False
-        return FavoriteRecipe.objects.filter(user=request.user, recipe=obj).exists()
+        return FavoriteRecipe.objects.filter(
+            user=request.user, recipe=obj
+        ).exists()
 
     def get_is_in_shopping_cart(self, obj: Recipe) -> bool:
         request: Request = self.context["request"]
         if request.user.is_anonymous:
             return False
-        return ShoppingList.objects.filter(user=request.user, recipe=obj).exists()
+        return ShoppingList.objects.filter(
+            user=request.user, recipe=obj
+        ).exists()
 
     class Meta:
         model = Recipe
@@ -113,7 +123,14 @@ class RecipeWriteSerializer(ModelSerializer):
 
     class Meta:
         model = Recipe
-        fields = ("ingredients", "tags", "image", "name", "text", "cooking_time")
+        fields = (
+            "ingredients",
+            "tags",
+            "image",
+            "name",
+            "text",
+            "cooking_time",
+        )
 
     def create_ingredients(self, recipe: Recipe, ingredients_data: dict):
         ingredient_liist = []
@@ -129,8 +146,8 @@ class RecipeWriteSerializer(ModelSerializer):
 
     def create(self, data: dict) -> Recipe:
         request: Request = self.context["request"]
-        ingredients_data = data.pop('ingredients')
-        tags_data = data.pop('tags')
+        ingredients_data = data.pop("ingredients")
+        tags_data = data.pop("tags")
         recipe = Recipe.objects.create(author=request.user, **data)
         recipe.tags.set(tags_data)
         self.create_ingredients(recipe, ingredients_data)
@@ -162,10 +179,14 @@ class ShoppingCartSerializer(ModelSerializer):
         request: Request = self.context["request"]
         recipe = data["recipe"]
 
-        if ShoppingList.objects.filter(user=request.user, recipe=recipe).exists():
+        if ShoppingList.objects.filter(
+            user=request.user, recipe=recipe
+        ).exists():
             raise ValidationError("Этот рецепт уже добавлен в корзину.")
 
-        shopping_list = ShoppingList.objects.create(user=request.user, recipe=recipe)
+        shopping_list = ShoppingList.objects.create(
+            user=request.user, recipe=recipe
+        )
         return shopping_list
 
 
