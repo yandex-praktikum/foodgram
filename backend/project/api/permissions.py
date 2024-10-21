@@ -13,7 +13,7 @@ class IsAuthorOrReadOnly(BasePermission):
     """
 
     def has_permission(self, request, view):
-        # Разрешить доступ к GET-запросам всем пользователям (включая неавторизованных)
+        # Разрешить доступ к GET-запросам всем пользователям
         if request.method in SAFE_METHODS:
             return True
         # Для других методов требуется аутентификация
